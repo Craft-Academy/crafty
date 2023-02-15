@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { Command } from "commander";
+import { FileSystemMessageRepository } from "./src/message.fs.repository";
 import { InMemoryMessageRepository } from "./src/message.inmemory.repository";
 import {
   DateProvider,
@@ -13,7 +14,7 @@ class RealDateProvider implements DateProvider {
   }
 }
 
-const messageRepository = new InMemoryMessageRepository();
+const messageRepository = new FileSystemMessageRepository();
 const dateProvider = new RealDateProvider();
 const postMessageUseCase = new PostMessageUseCase(
   messageRepository,
@@ -28,14 +29,14 @@ program
     new Command("post")
       .argument("<user>", "the current user")
       .argument("<message>", "the message to post")
-      .action((user, message) => {
+      .action(async (user, message) => {
         const postMessageCommand: PostMessageCommand = {
           id: "some-message-id",
           author: user,
           text: message,
         };
         try {
-          postMessageUseCase.handle(postMessageCommand);
+          await postMessageUseCase.handle(postMessageCommand);
           console.log("✅ Message posté");
           process.exit(0);
         } catch (err) {
