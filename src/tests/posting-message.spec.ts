@@ -5,27 +5,39 @@ describe("Feature: Posting a message", () => {
 
       whenUserPostsAmessage({
         id: "message-id",
-        text: "Hello World",
+        text: "Hello World 2",
         author: "Alice",
       });
 
       thenPostedMessageShouldBe({
         id: "message-id",
         author: "Alice",
-        text: "Hello World",
+        text: "Hello World 2",
         publishedAt: new Date("2023-01-19T19:00:00.000Z"),
       });
     });
   });
 });
 
-function givenNowIs(now: Date) {}
+let message: { id: string; author: string; text: string; publishedAt: Date };
+let now: Date;
+
+function givenNowIs(_now: Date) {
+  now = _now;
+}
 
 function whenUserPostsAmessage(postMessageCommand: {
   id: string;
   text: string;
   author: string;
-}) {}
+}) {
+  message = {
+    id: postMessageCommand.id,
+    text: postMessageCommand.text,
+    author: postMessageCommand.author,
+    publishedAt: now,
+  };
+}
 
 function thenPostedMessageShouldBe(expectedMessage: {
   id: string;
@@ -33,5 +45,5 @@ function thenPostedMessageShouldBe(expectedMessage: {
   text: string;
   publishedAt: Date;
 }) {
-  expect(true).toBe(false);
+  expect(expectedMessage).toEqual(message);
 }
