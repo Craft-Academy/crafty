@@ -1,7 +1,9 @@
 import {
   DateProvider,
+  EmptyMessageError,
   Message,
   MessageRepository,
+  MessageTooLongError,
   PostMessageCommand,
   PostMessageUseCase,
 } from "../post-message.usecase";
@@ -24,10 +26,39 @@ describe("Feature: Posting a message", () => {
         publishedAt: new Date("2023-01-19T19:00:00.000Z"),
       });
     });
+
+    test("Alice cannot post a message with more than 280 characters", () => {
+      const textWithLengthOf281 =
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mauris lacus, fringilla eu est vitae, varius viverra nisl. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vivamus suscipit feugiat sollicitudin. Aliquam erat volutpat amet.";
+      givenNowIs(new Date("2023-01-19T19:00:00.000Z"));
+
+      whenUserPostsAmessage({
+        id: "message-id",
+        author: "Alice",
+        text: textWithLengthOf281,
+      });
+
+      thenErrorShouldBe(MessageTooLongError);
+    });
+  });
+
+  describe("Rule: A message cannot be empty", () => {
+    test("Alice cannot post an empty message", () => {
+      givenNowIs(new Date("2023-01-19T19:00:00.000Z"));
+
+      whenUserPostsAmessage({
+        id: "message-id",
+        author: "Alice",
+        text: "",
+      });
+
+      thenErrorShouldBe(EmptyMessageError);
+    });
   });
 });
 
 let message: Message;
+let thrownError: Error;
 
 class InMemoryMessageRepository implements MessageRepository {
   save(msg: Message): void {
@@ -55,9 +86,17 @@ function givenNowIs(_now: Date) {
 }
 
 function whenUserPostsAmessage(postMessageCommand: PostMessageCommand) {
-  postMessageUseCase.handle(postMessageCommand);
+  try {
+    postMessageUseCase.handle(postMessageCommand);
+  } catch (err) {
+    thrownError = err;
+  }
 }
 
 function thenPostedMessageShouldBe(expectedMessage: Message) {
   expect(expectedMessage).toEqual(message);
+}
+
+function thenErrorShouldBe(expectedErrorClass: new () => Error) {
+  expect(thrownError).toBeInstanceOf(expectedErrorClass);
 }
