@@ -4,10 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc -t es5 --noEmit --downlevelIteration ./index.ts && esbuild index.ts --bundle --platform=node --format=cjs --outfile=dist/index.js"
+    "build:cli": "tsc -t es5 --noEmit --downlevelIteration ./src/apps/cli.ts && esbuild ./src/apps/cli.ts --bundle --platform=node --format=cjs --outfile=dist/cli.js",
+    "build:api": "tsc -t es5 --noEmit --downlevelIteration ./src/apps/api.ts && esbuild ./src/apps/api.ts --bundle --platform=node --format=cjs --outfile=dist/api.js",
+    "start:api": "node ./dist/api.js"
   },
   "bin": {
-    "crafty": "dist/index.js"
+    "crafty": "dist/cli.js"
   },
   "prisma": {
     "schema": "src/infra/prisma/schema.prisma"
@@ -27,6 +29,8 @@
   },
   "dependencies": {
     "@prisma/client": "^4.10.1",
-    "commander": "^10.0.0"
+    "commander": "^10.0.0",
+    "fastify": "^4.13.0",
+    "http-errors": "^2.0.0"
   }
 }

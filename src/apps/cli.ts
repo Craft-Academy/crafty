@@ -3,23 +3,25 @@ import { Command } from "commander";
 import {
   EditMessageCommand,
   EditMessageUseCase,
-} from "./src/application/usecases/edit-message.usecase";
-import { FileSystemMessageRepository } from "./src/infra/message.fs.repository";
+} from "../application/usecases/edit-message.usecase";
 import {
   PostMessageCommand,
   PostMessageUseCase,
-} from "./src/application/usecases/post-message.usecase";
-import { ViewTimelineUseCase } from "./src/application/usecases/view-timeline.usecase";
-import { RealDateProvider } from "./src/infra/real-date-provider";
+} from "../application/usecases/post-message.usecase";
+import { ViewTimelineUseCase } from "../application/usecases/view-timeline.usecase";
+import { RealDateProvider } from "../infra/real-date-provider";
 import {
   FollowUserCommand,
   FollowUserUseCase,
-} from "./src/application/usecases/follow-user.usecase";
-import { FileSystemFolloweeRepository } from "./src/infra/followee.fs.repository";
-import { ViewWallUseCase } from "./src/application/usecases/view-wall.usecase";
+} from "../application/usecases/follow-user.usecase";
+import { ViewWallUseCase } from "../application/usecases/view-wall.usecase";
+import { PrismaClient } from "@prisma/client";
+import { PrismaMessageRepository } from "../infra/prisma/message.prisma.repository";
+import { PrismaFolloweeRepository } from "../infra/prisma/followee.prisma.repository";
 
-const messageRepository = new FileSystemMessageRepository();
-const followeeRepository = new FileSystemFolloweeRepository();
+const prismaClient = new PrismaClient();
+const messageRepository = new PrismaMessageRepository(prismaClient);
+const followeeRepository = new PrismaFolloweeRepository(prismaClient);
 const dateProvider = new RealDateProvider();
 const postMessageUseCase = new PostMessageUseCase(
   messageRepository,
@@ -129,7 +131,9 @@ program
   );
 
 async function main() {
+  await prismaClient.$connect();
   await program.parseAsync();
+  await prismaClient.$disconnect();
 }
 
 main();
