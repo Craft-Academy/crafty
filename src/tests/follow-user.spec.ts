@@ -1,3 +1,9 @@
+import {
+  FollowUserCommand,
+  FollowUserUseCase,
+} from "../application/usecases/follow-user.usecase";
+import { InMemoryFolloweeRepository } from "../infra/followee.inmemory.repository";
+
 describe("Feature: Following a user", () => {
   let fixture: Fixture;
 
@@ -23,6 +29,8 @@ describe("Feature: Following a user", () => {
 });
 
 const createFixture = () => {
+  const followeeRepository = new InMemoryFolloweeRepository();
+  const followUserUseCase = new FollowUserUseCase(followeeRepository);
   return {
     givenUserFollowees({
       user,
@@ -30,15 +38,26 @@ const createFixture = () => {
     }: {
       user: string;
       followees: string[];
-    }) {},
-    async whenUserFollows(followCommand: {
-      user: string;
-      userToFollow: string;
-    }) {},
+    }) {
+      followeeRepository.givenExistingFollowees(
+        followees.map((f) => ({
+          user,
+          followee: f,
+        }))
+      );
+    },
+    async whenUserFollows(followUserCommand: FollowUserCommand) {
+      await followUserUseCase.handle(followUserCommand);
+    },
     async thenUserFolloweesAre(userFollowees: {
       user: string;
       followees: string[];
-    }) {},
+    }) {
+      const actualFollowees = followeeRepository.getFolloweesOf(
+        userFollowees.user
+      );
+      expect(actualFollowees).toEqual(userFollowees.followees);
+    },
   };
 };
 
