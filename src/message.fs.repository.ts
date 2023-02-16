@@ -20,14 +20,7 @@ export class FileSystemMessageRepository implements MessageRepository {
     }
     return fs.promises.writeFile(
       this.messagePath,
-      JSON.stringify(
-        messages.map((m) => ({
-          id: m.id,
-          author: m.author,
-          publishedAt: m.publishedAt,
-          text: m.text.value,
-        }))
-      )
+      JSON.stringify(messages.map((m) => m.data))
     );
   }
 
@@ -52,11 +45,13 @@ export class FileSystemMessageRepository implements MessageRepository {
       publishedAt: string;
     }[];
 
-    return messages.map((m) => ({
-      id: m.id,
-      author: m.author,
-      text: MessageText.of(m.text),
-      publishedAt: new Date(m.publishedAt),
-    }));
+    return messages.map((m) =>
+      Message.fromData({
+        id: m.id,
+        author: m.author,
+        text: m.text,
+        publishedAt: new Date(m.publishedAt),
+      })
+    );
   }
 }

@@ -39,12 +39,12 @@ export const messageBuilder = ({
       });
     },
     build(): Message {
-      return {
+      return Message.fromData({
         id: props.id,
         author: props.author,
-        text: MessageText.of(props.text),
+        text: props.text,
         publishedAt: props.publishedAt,
-      };
+      });
     },
   };
 };
