@@ -101,7 +101,9 @@ const createFixture = () => {
       }
     },
     thenPostedMessageShouldBe(expectedMessage: Message) {
-      expect(expectedMessage).toEqual(messageRepository.message);
+      expect(expectedMessage).toEqual(
+        messageRepository.getMessageById(expectedMessage.id)
+      );
     },
     thenErrorShouldBe(expectedErrorClass: new () => Error) {
       expect(thrownError).toBeInstanceOf(expectedErrorClass);
