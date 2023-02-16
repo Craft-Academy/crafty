@@ -22,7 +22,7 @@ export class InMemoryFolloweeRepository implements FolloweeRepository {
     this.followeesByUser.set(followee.user, existingFollowees);
   }
 
-  getFolloweesOf(user: string) {
-    return this.followeesByUser.get(user) ?? [];
+  async getFolloweesOf(user: string) {
+    return Promise.resolve(this.followeesByUser.get(user) ?? []);
   }
 }
