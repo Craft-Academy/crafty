@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/crafty/src",
+  "projects": {
+    "crafty": {
+      "type": "application",
+      "root": "apps/crafty",
+      "entryFile": "main",
+      "sourceRoot": "apps/crafty/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/crafty/tsconfig.app.json"
+      }
+    },
+    "cli": {
+      "type": "application",
+      "root": "apps/cli",
+      "entryFile": "main",
+      "sourceRoot": "apps/cli/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/cli/tsconfig.app.json"
+      }
+    },
+    "api": {
+      "type": "application",
+      "root": "apps/api",
+      "entryFile": "main",
+      "sourceRoot": "apps/api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/api/tsconfig.app.json"
+      }
+    }
+  },
+  "compilerOptions": {
+    "webpack": true,
+    "tsConfigPath": "apps/crafty/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/crafty"
+}
