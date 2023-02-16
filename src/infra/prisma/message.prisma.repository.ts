@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import { MessageRepository } from "../application/message.repository";
-import { Message } from "../domain/message";
+import { MessageRepository } from "../../application/message.repository";
+import { Message } from "../../domain/message";
 
 export class PrismaMessageRepository implements MessageRepository {
   constructor(private readonly prisma: PrismaClient) {}

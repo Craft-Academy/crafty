@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import {
   Followee,
   FolloweeRepository,
-} from "../application/followee.repository";
+} from "../../application/followee.repository";
 
 export class PrismaFolloweeRepository implements FolloweeRepository {
   constructor(private readonly prisma: PrismaClient) {}
