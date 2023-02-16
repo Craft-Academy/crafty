@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 import { Command } from "commander";
+import {
+  EditMessageCommand,
+  EditMessageUseCase,
+} from "./src/edit-message.usecase";
 import { FileSystemMessageRepository } from "./src/message.fs.repository";
 import { InMemoryMessageRepository } from "./src/message.inmemory.repository";
 import {
@@ -25,6 +29,7 @@ const viewTimelineUseCase = new ViewTimelineUseCase(
   messageRepository,
   dateProvider
 );
+const editMessageUseCase = new EditMessageUseCase(messageRepository);
 
 const program = new Command();
 program
@@ -43,6 +48,25 @@ program
         try {
           await postMessageUseCase.handle(postMessageCommand);
           console.log("✅ Message posté");
+          process.exit(0);
+        } catch (err) {
+          console.error("❌", err);
+          process.exit(1);
+        }
+      })
+  )
+  .addCommand(
+    new Command("edit")
+      .argument("<message-id>", "the message id of the message to edit")
+      .argument("<message>", "the new text")
+      .action(async (messageId, message) => {
+        const editMessageCommand: EditMessageCommand = {
+          messageId,
+          text: message,
+        };
+        try {
+          await editMessageUseCase.handle(editMessageCommand);
+          console.log("✅ Message edité");
           process.exit(0);
         } catch (err) {
           console.error("❌", err);

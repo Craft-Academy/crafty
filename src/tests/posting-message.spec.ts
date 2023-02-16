@@ -21,7 +21,7 @@ describe("Feature: Posting a message", () => {
         author: "Alice",
       });
 
-      fixture.thenMessageShouldBe(
+      await fixture.thenMessageShouldBe(
         messageBuilder()
           .withId("message-id")
           .authoredBy("Alice")
