@@ -1,7 +1,4 @@
-import {
-  EmptyMessageError,
-  MessageTooLongError,
-} from "../post-message.usecase";
+import { EmptyMessageError, MessageTooLongError } from "../message";
 import { messageBuilder } from "./message.builder";
 import { MessagingFixture, createMessagingFixture } from "./messaging.fixture";
 describe("Feature: Posting a message", () => {
