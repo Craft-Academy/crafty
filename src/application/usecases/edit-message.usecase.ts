@@ -1,10 +1,4 @@
-import {
-  EmptyMessageError,
-  Message,
-  MessageText,
-  MessageTooLongError,
-} from "./message";
-import { MessageRepository } from "./message.repository";
+import { MessageRepository } from "../message.repository";
 
 export type EditMessageCommand = {
   messageId: string;

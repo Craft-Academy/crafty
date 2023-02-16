@@ -1,7 +1,7 @@
 import * as path from "path";
 import * as fs from "fs";
-import { Message, MessageText } from "./message";
-import { MessageRepository } from "./message.repository";
+import { Message } from "../domain/message";
+import { MessageRepository } from "../application/message.repository";
 
 export class FileSystemMessageRepository implements MessageRepository {
   constructor(
