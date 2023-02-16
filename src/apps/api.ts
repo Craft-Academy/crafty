@@ -1,4 +1,4 @@
-import Fastify, { FastifyInstance } from "fastify";
+import Fastify, { FastifyInstance, FastifyReply } from "fastify";
 import * as httpErrors from "http-errors";
 import {
   EditMessageCommand,
@@ -18,6 +18,16 @@ import { ViewWallUseCase } from "../application/usecases/view-wall.usecase";
 import { PrismaClient } from "@prisma/client";
 import { PrismaMessageRepository } from "../infra/prisma/message.prisma.repository";
 import { PrismaFolloweeRepository } from "../infra/prisma/followee.prisma.repository";
+import { TimelinePresenter } from "../application/timeline.presenter";
+import { Timeline } from "../domain/timeline";
+
+class ApiTimelinePresenter implements TimelinePresenter {
+  constructor(private readonly reply: FastifyReply) {}
+
+  show(timeline: Timeline): void {
+    this.reply.status(200).send(timeline.data);
+  }
+}
 
 const prismaClient = new PrismaClient();
 const messageRepository = new PrismaMessageRepository(prismaClient);
@@ -33,8 +43,7 @@ const viewTimelineUseCase = new ViewTimelineUseCase(
 );
 const viewWallUseCase = new ViewWallUseCase(
   messageRepository,
-  followeeRepository,
-  dateProvider
+  followeeRepository
 );
 const editMessageUseCase = new EditMessageUseCase(messageRepository);
 const followUserUseCase = new FollowUserUseCase(followeeRepository);
@@ -96,11 +105,14 @@ const routes = async (fastifyInstance: FastifyInstance) => {
       | { author: string; text: string; publicationTime: string }[]
       | httpErrors.HttpError<500>;
   }>("/view", {}, async (request, reply) => {
+    const timelinePresenter = new ApiTimelinePresenter(reply);
     try {
-      const timeline = await viewTimelineUseCase.handle({
-        user: request.query.user,
-      });
-      reply.status(200).send(timeline);
+      await viewTimelineUseCase.handle(
+        {
+          user: request.query.user,
+        },
+        timelinePresenter
+      );
     } catch (err) {
       reply.send(httpErrors[500](err));
     }
@@ -113,8 +125,11 @@ const routes = async (fastifyInstance: FastifyInstance) => {
       | httpErrors.HttpError<500>;
   }>("/wall", {}, async (request, reply) => {
     try {
-      const wall = await viewWallUseCase.handle({ user: request.query.user });
-      reply.status(200).send(wall);
+      const timelinePresenter = new ApiTimelinePresenter(reply);
+      await viewWallUseCase.handle(
+        { user: request.query.user },
+        timelinePresenter
+      );
     } catch (err) {
       reply.send(httpErrors[500](err));
     }

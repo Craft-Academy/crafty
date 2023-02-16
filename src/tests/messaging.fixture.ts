@@ -10,6 +10,8 @@ import {
 } from "../application/usecases/post-message.usecase";
 import { StubDateProvider } from "../infra/stub-date-provider";
 import { ViewTimelineUseCase } from "../application/usecases/view-timeline.usecase";
+import { DefaultTimelinePresenter } from "../apps/timeline.default.presenter";
+import { TimelinePresenter } from "../application/timeline.presenter";
 
 export const createMessagingFixture = () => {
   const dateProvider = new StubDateProvider();
@@ -29,6 +31,12 @@ export const createMessagingFixture = () => {
     messageRepository,
     dateProvider
   );
+  const defaultTimelinePresenter = new DefaultTimelinePresenter(dateProvider);
+  const timelinePresenter: TimelinePresenter = {
+    show(theTimeline) {
+      timeline = defaultTimelinePresenter.show(theTimeline);
+    },
+  };
   return {
     givenTheFollowingMessagesExist(messages: Message[]) {
       messageRepository.givenExistingMessages(messages);
@@ -51,7 +59,7 @@ export const createMessagingFixture = () => {
       }
     },
     async whenUserSeesTheTimelineOf(user: string) {
-      timeline = await viewTimelineUseCase.handle({ user });
+      await viewTimelineUseCase.handle({ user }, timelinePresenter);
     },
     async thenMessageShouldBe(expectedMessage: Message) {
       const message = await messageRepository.getById(expectedMessage.id);
