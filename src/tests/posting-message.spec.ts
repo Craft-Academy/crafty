@@ -1,17 +1,14 @@
 import {
   EmptyMessageError,
   MessageTooLongError,
-  PostMessageCommand,
-  PostMessageUseCase,
 } from "../post-message.usecase";
-import { InMemoryMessageRepository } from "../message.inmemory.repository";
-import { StubDateProvider } from "../stub-date-provider";
-import { Message } from "../message";
+import { messageBuilder } from "./message.builder";
+import { MessagingFixture, createMessagingFixture } from "./messaging.fixture";
 describe("Feature: Posting a message", () => {
-  let fixture: Fixture;
+  let fixture: MessagingFixture;
 
   beforeEach(() => {
-    fixture = createFixture();
+    fixture = createMessagingFixture();
   });
 
   describe("Rule: A message can contain a maximum of 280 characters", () => {
@@ -24,12 +21,14 @@ describe("Feature: Posting a message", () => {
         author: "Alice",
       });
 
-      fixture.thenPostedMessageShouldBe({
-        id: "message-id",
-        author: "Alice",
-        text: "Hello World 2",
-        publishedAt: new Date("2023-01-19T19:00:00.000Z"),
-      });
+      fixture.thenMessageShouldBe(
+        messageBuilder()
+          .withId("message-id")
+          .authoredBy("Alice")
+          .withText("Hello World 2")
+          .publishedAt(new Date("2023-01-19T19:00:00.000Z"))
+          .build()
+      );
     });
 
     test("Alice cannot post a message with more than 280 characters", async () => {
@@ -72,35 +71,3 @@ describe("Feature: Posting a message", () => {
     });
   });
 });
-
-const createFixture = () => {
-  const dateProvider = new StubDateProvider();
-  const messageRepository = new InMemoryMessageRepository();
-  const postMessageUseCase = new PostMessageUseCase(
-    messageRepository,
-    dateProvider
-  );
-  let thrownError: Error;
-  return {
-    givenNowIs(now: Date) {
-      dateProvider.now = now;
-    },
-    async whenUserPostsAmessage(postMessageCommand: PostMessageCommand) {
-      try {
-        await postMessageUseCase.handle(postMessageCommand);
-      } catch (err) {
-        thrownError = err;
-      }
-    },
-    thenPostedMessageShouldBe(expectedMessage: Message) {
-      expect(expectedMessage).toEqual(
-        messageRepository.getMessageById(expectedMessage.id)
-      );
-    },
-    thenErrorShouldBe(expectedErrorClass: new () => Error) {
-      expect(thrownError).toBeInstanceOf(expectedErrorClass);
-    },
-  };
-};
-
-type Fixture = ReturnType<typeof createFixture>;
